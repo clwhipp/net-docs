@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Borg - My Docs</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Borg";
+        var mkdocs_page_input_path = "borg.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> My Docs
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Borg</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-create-the-repository-to-house-the-archives">Step 1 - Create the repository to house the archives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-create-archives-backups-as-desired">Step 2 - Create archives (backups) as desired</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-backup-key">Step 3 - Backup Key</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#recovery-process">Recovery Process</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#re-create-keyfile-from-bitwarden">Re-create keyfile from Bitwarden</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#remount-borg-repository">Remount Borg Repository</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../rclone/">RClone</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">My Docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Borg</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="borg-backup">Borg Backup</h1>
+<p>https://borgbackup.readthedocs.io/en/stable/</p>
+<h2 id="installation">Installation</h2>
+<pre><code class="language-bash">sudo apt-get install borgbackup
+</code></pre>
+<h2 id="setup">Setup</h2>
+<h3 id="step-1-create-the-repository-to-house-the-archives">Step 1 - Create the repository to house the archives</h3>
+<pre><code class="language-bash">borg init --encryption=keyfile /mnt/backup/borg
+</code></pre>
+<h3 id="step-2-create-archives-backups-as-desired">Step 2 - Create archives (backups) as desired</h3>
+<pre><code class="language-bash">ARCHIVE_NAME='{hostname}-{now}'
+INCLUDES='/mnt/critical/Secure_bitwarden /mnt/critical/nextcloud/data/brandi/files /mnt/critical/nextcloud/data/cameron/files'
+borg create --compression zstd,10 --progress --list --verbose --stats /mnt/backup/borg::${ARCHIVE_NAME} ${INCLUDES}
+</code></pre>
+<h3 id="step-3-backup-key">Step 3 - Backup Key</h3>
+<pre><code class="language-bash">root@www:/mnt/backup# borg key export
+usage: borg key export [-h] [--critical] [--error] [--warning] [--info] [--debug] [--debug-topic TOPIC] [-p] [--log-json] [--lock-wait SECONDS] [--bypass-lock] [--show-version]
+                       [--show-rc] [--umask M] [--remote-path PATH] [--remote-ratelimit RATE] [--consider-part-files] [--debug-profile FILE] [--rsh RSH] [--paper] [--qr-html]
+                       [REPOSITORY] [PATH]
+</code></pre>
+<h2 id="recovery-process">Recovery Process</h2>
+<p><strong>Steps</strong>
+1. Install borgbackup on client
+2. Download borg repository from offsite location
+3. Re-create keyfile within recovery system
+4. Mount Recovery drive at same path (/mnt/backup/borg)</p>
+<h3 id="re-create-keyfile-from-bitwarden">Re-create keyfile from Bitwarden</h3>
+<p>The keyfile contains the decryption/MAC keys for the borg repository. The contents of the keyfile is encrypted
+with a passphrase. The keyfile needs to be re-created on the system performing the recovery operation so that
+it can decrypt the backup.</p>
+<p>Open /root/.config/borg/keys/mnt_backup_borg in an editor, create if not present. The directory may need to be
+created using the following command.</p>
+<pre><code class="language-bash">mkdir -p /root/.config/borg/keys
+</code></pre>
+<p>Once entered, save the contents of the file.</p>
+<h3 id="remount-borg-repository">Remount Borg Repository</h3>
+<p>The Borg repository needs to be mounted at same location for borg mapping to work correctly.</p>
+<pre><code class="language-bash">mkdir -p /mnt/backup
+mount -t ext4 /dev/sdb1 /mnt/backup
+</code></pre>
+<p><strong>View Contents</strong>
+The <em>borg list</em> command provides a listing of the archives present in the backup.</p>
+<pre><code class="language-bash">root@thinkpad:borg list /mnt/backup/borg/
+Enter passphrase for key /root/.config/borg/keys/mnt_backup_borg: 
+vcenter-2022-12-01T21:07:04          Thu, 2022-12-01 21:07:04 [7b6e2497152015654c5b6aed44dbb81ed276b0218666969e74fc03fb2e81f0f4]
+vcenter-2022-12-04T22:03:00          Sun, 2022-12-04 22:03:01 [dd441e60a28c58aa5e30fc2dec2345f00389b47626a378c33d25c53be52dbb74]
+vcenter-2022-12-05T22:00:12          Mon, 2022-12-05 22:00:13 [8612f5b8a1f72176d492d1f7c78cd8db1a0b90bbb7eb41a796208e4f6a8dd432]
+vcenter-2022-12-06T22:03:20          Tue, 2022-12-06 22:03:21 [a991b553e0ac8584e71297b4f284702a30c89d583f814362fe9fcbd89d97e5d8]
+vcenter-2022-12-07T22:00:38          Wed, 2022-12-07 22:00:38 [49eddca0e4cd2b4c6c1f8096beb6a3f84e0220c6fdfc6a7a226eb1f3205d997d]
+vcenter-2022-12-09T22:02:57          Fri, 2022-12-09 22:02:58 [5e5304f3f50a864729376b11d97b64d1d05b7846aa802c5de7b05ddfa8d7357a]
+vcenter-2022-12-10T22:03:02          Sat, 2022-12-10 22:03:05 [8a37b7ed495dc42cc9cd7a6f867c3d03628a021c7b2807b34f877bbb0665bb7a]
+vcenter-2022-12-11T22:02:17          Sun, 2022-12-11 22:02:18 [1ac856f2ba227912ac54b50b83a70129538c04a63e3c3ef9b63fbfb6a715d943]
+vcenter-2022-12-12T22:00:16          Mon, 2022-12-12 22:00:17 [53a3cd34b5eaebe3716cd048b696125a077eba21ce239bf56be902d90f0b795b]
+</code></pre>
+<p>Each archive can be mounted into file-system and navigated.</p>
+<pre><code class="language-bash">mkdir -p /mnt/extract/borg
+borg mount /mnt/backup/borg::&lt;name from first column&gt;
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rclone/" class="btn btn-neutral float-right" title="RClone">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rclone/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
