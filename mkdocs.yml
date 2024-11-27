@@ -1,6 +1,8 @@
 site_name: My Docs
 nav:
   - Home: index.md
+  - RAID: raid.md
   - Borg: borg.md
   - RClone: rclone.md
+  - KVM: kvm.md
 theme: readthedocs
