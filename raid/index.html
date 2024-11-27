@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>RAID - My Docs</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RAID";
+        var mkdocs_page_input_path = "raid.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> My Docs
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">RAID</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#checking-status">Checking Status</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#maintenance-and-performance">Maintenance and Performance</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#check-operations-frequency">Check Operations Frequency</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#speeds-for-check-and-rebuild-operations">Speeds for Check and Rebuild Operations</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../borg/">Borg</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../rclone/">RClone</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../kvm/">KVM</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">My Docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">RAID</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="raid">RAID</h1>
+<p>Data stored within the network is stored within a series of RAID
+arrays. RAID, or Redundant Array of Inexpensive Disks, is a technology
+where multiple physical disks are utilized to prevent data loss in event
+of disk failure.</p>
+<p>There are several modes or types of RAID that can be utilized with varying
+levels of advantages and disadvantages. The RAIDs in place as of now are
+configured in a RAID-1 (or mirrored) configuration. This means that any data
+written to the RAID are written across all the physical disks in the RAID.</p>
+<p>RAIDs can be implemented within Hardware or Software. There are various
+trade-offs that come into play when considerig whether to utilize hardware
+or software.</p>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Software</th>
+<th>Hardware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Performance</td>
+<td>Slower performance as CPU utilized.</td>
+<td>Higher performance as dedicated hardware used.</td>
+</tr>
+<tr>
+<td>Complexity of Administration</td>
+<td>Increased complexity as admin responsible for all aspects such as creation, monitoring, and disk management.</td>
+<td>Simpler as admin only responsible for enable data writes to drives.</td>
+</tr>
+<tr>
+<td>Vendor Lock-in</td>
+<td>No Vendor Lock</td>
+<td>Common for hardware controllers to utilize different formats that are incompatible.</td>
+</tr>
+<tr>
+<td>Alerting Capabilities</td>
+<td>Scripting and automation can be developed to detect failed disks and notify admins.</td>
+<td>Hardware controllers responsible for detection and alerting restricted to what is enabled by hardware.</td>
+</tr>
+<tr>
+<td>Flexibility</td>
+<td>Most flexible as RAIDs are configured and managed within software. As such, custom setups are different combinations of commands.</td>
+<td>No flexibility beyond what is configured within hardware controller firmware.</td>
+</tr>
+<tr>
+<td>Support bug fixes and updates</td>
+<td>Very supportive as it's just a matter of updating a software package.</td>
+<td>Not nearly as flexible as it's a hardware firmware updates. Dependent upon hardware developers maintaining their product lines for full length of time that it's present in your environment.</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Support software updates to fix bugs.</td>
+<td>Security updates may never happen depending upon controllers ability to reload.</td>
+</tr>
+</tbody>
+</table>
+<p>The trade-offs documented in the above table was considered when
+choosing whether to utilize software or hardware based RAID. The
+flexibility, lack of vendor lock-in, and increased alerting capabilities
+of the software RAID resulted in it being chosen for this network.</p>
+<p>There are 2 raids configured within the network to manage the storage
+of data. The first raid is accessible at /mnt/critical within the
+server environment. This serves as the primary storage location for
+the services. The second raid is /mnt/backup which is larger than
+/mnt/critical and services to store multiple years worth of backups. As mentioned above, these RAIDs are both running in a RAID-1 configuration
+with 2 physical disks present in each. This provides redundancy for
+disk failure in either of these two raids.</p>
+<h2 id="setup">Setup</h2>
+<p>These setup notes will walk through the process of setting up a software
+RAID using the mdadm package from linux. The first step in setting
+up a RAID is to install the necessary packages. This can be
+completed with the following commands.</p>
+<pre><code class="language-bash">sudo apt-get update
+sudo apt-get install mdadm
+</code></pre>
+<p>The next step is to identify which devices within the system need to
+be included in the RAID. The <em>lsblk</em> command can be utilized to list
+all the block devices (hard disks) within the server environment.</p>
+<pre><code class="language-bash">lsblk
+</code></pre>
+<p>This command will provide a list of all the devices and their respective sizes.
+This information should help to identify the block device names
+that will need to be utilized in the next step.</p>
+<p>After identifying the devices, the next step is to create the RAID
+using those physical devices. The following is an example of that
+command for devices /dev/sdb1 and /dev/sdc1.</p>
+<pre><code class="language-bash">mdadm --create --verbose /dev/md/&lt;name&gt; --level=1 --raid-devices=2 /dev/&lt;dev 1&gt; /dev/&lt;dev 2&gt;
+
+Ex.
+mdadm --create --verbose /dev/md/critical --level=1 --raid-devices=2 /dev/sdb1 /dev/sdc1
+</code></pre>
+<p>The above example created what is called a multi-device (md) in the MDADM
+terminology. The MD device acts as a virtual device that can be written
+to or read from within Linux environment. All actions on the MD device
+will span across the physical devices added to the RAID. The name given
+to the MD in the above example is <em>/dev/md/critical</em> as it corresponded
+to the critical RAID.</p>
+<h2 id="checking-status">Checking Status</h2>
+<p>The status of the RAIDs can be checked through a couple different avenues. The first path is to cat the /proc/mdstat file within the
+Linux environment.</p>
+<p>The following is an example of the output that becomes available as
+part of reading that virtual file.</p>
+<pre><code class="language-bash">cameron@vcenter:~$ cat /proc/mdstat 
+Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10] 
+md126 : active raid1 sdd1[1] sdc1[0]
+      3906876416 blocks super 1.2 [2/2] [UU]
+      bitmap: 0/30 pages [0KB], 65536KB chunk
+
+md127 : active raid1 sdf1[1] sde1[0]
+      976620544 blocks super 1.2 [2/2] [UU]
+      bitmap: 0/8 pages [0KB], 65536KB chunk
+</code></pre>
+<p>There's a detail command that can be leveraged with <em>mdadm</em> to get
+even more information on a particular RAID. The following is an example
+of looking a bit more in depth at a particular RAID.</p>
+<pre><code class="language-bash">root@vcenter:/home/cameron# mdadm --detail /dev/md127
+/dev/md127:
+           Version : 1.2
+     Creation Time : Mon Apr 12 11:20:41 2021
+        Raid Level : raid1
+        Array Size : 976620544 (931.38 GiB 1000.06 GB)
+     Used Dev Size : 976620544 (931.38 GiB 1000.06 GB)
+      Raid Devices : 2
+     Total Devices : 2
+       Persistence : Superblock is persistent
+
+     Intent Bitmap : Internal
+
+       Update Time : Tue Mar 21 21:29:09 2023
+             State : clean 
+    Active Devices : 2
+   Working Devices : 2
+    Failed Devices : 0
+     Spare Devices : 0
+
+Consistency Policy : bitmap
+
+              Name : www:critical
+              UUID : 2b068395:2f23a3ef:e6bbe535:51acfb80
+            Events : 59106
+
+    Number   Major   Minor   RaidDevice State
+       0       8       65        0      active sync   /dev/sde1
+       1       8       81        1      active sync   /dev/sdf1
+</code></pre>
+<p>As can be seen, there are a lot more details available from the use
+of that command. This page will also provide details if the RAID
+happens to be going through a re-synchronization process.</p>
+<p>It's important to note that the device created with the above commands
+does not yet have a file-system or structure to data on it. It's
+effectively a RAW block device. As such, it will be necessary to
+create a file-system on the md for it to be utilized for storage.</p>
+<p>The following in an example of creating a file-system on the MD and
+subsequently mounting it to /mnt/critical. However, the following
+will not add any sort of encryption on the data stored on the
+disks. For encryption, the steps in the LUKS section should be
+followed.</p>
+<pre><code class="language-bash">mkfs.ext4 /dev/md/critical
+mkdir -p /mnt/critical
+mount -t ext4 /dev/md/critical /mnt/critical
+</code></pre>
+<p>There are also changes that could be made to /etc/fstab that would
+handle the auto-mount of this on the next reboot.</p>
+<h2 id="maintenance-and-performance">Maintenance and Performance</h2>
+<p>There are some configurable options with RAID to keep in mind.</p>
+<h3 id="check-operations-frequency">Check Operations Frequency</h3>
+<p>The check operations are typically quite resource intensive to RAIDs. The process
+involves walking the contents of the RAID and ensuring that all drives maintain the
+appropriate data. This can significantly impact the availability of resources and 
+response times for the server.</p>
+<p>The following command will list the scheduling for when an automated check is performed. Scheduling
+for a time with lower usage is ideal from an impact perspective.</p>
+<pre><code class="language-bash">sudo systemctl list-timers mdcheck_start
+</code></pre>
+<p>This will result in a message like the following:</p>
+<pre><code class="language-bash">NEXT                        LEFT                LAST                        PASSED            UNIT                ACTIVATES            
+Sun 2023-05-07 13:51:06 CDT 4 weeks 0 days left Sun 2023-04-02 07:54:24 CDT 1 week 0 days ago mdcheck_start.timer mdcheck_start.service
+
+1 timers listed.
+Pass --all to see loaded but inactive timers, too.
+</code></pre>
+<p>The above lists the frequency in which automated check operations are being performed.</p>
+<h3 id="speeds-for-check-and-rebuild-operations">Speeds for Check and Rebuild Operations</h3>
+<p>There are speed limitations that the software utilizes as a goal when handling RAID
+operations. There is a minimum and maximum speed associated with the RAID.</p>
+<pre><code class="language-bash">sudo sysctl dev.raid.speed_limit_min
+sudo sysctl dev.raid.speed_limit_max
+</code></pre>
+<p>The following is an example of the default values that are configured within the software.</p>
+<pre><code class="language-bash">root@vcenter: sysctl dev.raid.speed_limit_min
+dev.raid.speed_limit_min = 1000
+root@vcenter: sysctl dev.raid.speed_limit_max
+dev.raid.speed_limit_max = 200000
+</code></pre>
+<p>The values can be changed using the systemctl command as well. The numbers are in kilobytes/second
+on a per-device basis. The following will set a limit of around 7 MB/sec.</p>
+<pre><code class="language-bash">sudo sysctl -w dev.raid.speed_limit_max=7000
+</code></pre>
+<p>The following are some values based upon the number of drives. The /etc/sysctl.conf file contains
+the default values for the system. The following is an exmaple of the content.</p>
+<pre><code>#################NOTE ################
+##  You are limited by CPU and memory too #
+###########################################
+dev.raid.speed_limit_min = 50000
+## good for 4-5 disks based array ##
+dev.raid.speed_limit_max = 2000000
+## good for large 6-12 disks based array ###
+dev.raid.speed_limit_max = 5000000
+</code></pre>
+<h1 id="linux-unified-key-setup-luks">Linux Unified Key Setup (LUKS)</h1>
+<p>Another important decision is to whether the data being written to the
+RAID will be protected through the use of encryption. The use of encryption
+with the RAID ensures that all data placed on the RAID will not be
+readable by unauthorized individuals that may have physical access
+to the drives.</p>
+<p>Disk encryption within Linux commonly utilizes a combination of
+dm-crypt and Linux Unified Key Setup (LUKS). The dm-crypt module
+handles the cryptographic operations while LUKS provides the
+key management needed for dm-crypt to operate.</p>
+<h2 id="setup_1">Setup</h2>
+<p>Integration with RAID devices configured in previous section would enable the ability
+to have redundancy and protection of data. Once enabled, a password will need to
+be provided each time the RAID is mounted. Enabling protection also means that
+it won't be possible for the system to automatically recover in event of power loss.</p>
+<p>The following command will initiate the creation process on the /dev/md/critical block
+device.</p>
+<pre><code class="language-bash">cryptsetup -y -v luksFormat /dev/md/critical
+</code></pre>
+<p>A prompt for password entry will be appear. Be sure to keep the password in safe place
+as there is no recovery path if forgotten. Once completed, the RAID device will be
+encrypted but there won't be a file-system present. Also, the encrypted volume will
+need to be mapped into the file hierarchy before it can be utilized.</p>
+<p>The following command will mount the encrypted partition to the provided mapper point. In
+this case, the mapper's name is called secret.</p>
+<pre><code class="language-bash">cryptsetup luksOpen /dev/md/critical &lt;mapper_point&gt;
+
+Ex.
+cryptsetup luksOpen /dev/md/critical secret
+</code></pre>
+<p>By default, the partition creation process does not fill all the drive's contents. This
+means that any data previously stored on the drive is still present. This can be alleviated
+by fill the secret partition with random data that covers entire drive.</p>
+<pre><code class="language-bash">pv -tpreb /dev/zero | dd of=/dev/mapper/secret bs=128M
+</code></pre>
+<p>The filling process will take a long time and will vary depending on the speed and size of the
+drives. Finally, the last step in the setup process is to create a file-system on the RAID
+device. This will allow for mounting the encryption volume/RAID into the file-system and provide
+transparent encryption and redundancy in store.</p>
+<p>The following command will create an ext4 file-system within the encrypted partition.</p>
+<pre><code class="language-bash">mkfs.ext4 /dev/mapper/secret
+</code></pre>
+<p>Once the file-system is created it will need to be mounted into the file hierarchy.</p>
+<pre><code class="language-bash">mount /dev/mapper/secret /mnt/critical
+</code></pre>
+<h2 id="unlocking-process">Unlocking Process</h2>
+<p>There are 2 steps associated with unlocking an encrypted partition using LUKS.</p>
+<ol>
+<li>Encrypted Partition needs to be mounted to an accessible block device.</li>
+<li>File-system on the device must be mounted to become accessible.</li>
+</ol>
+<p>The commands seen above show an example of the process but a more targeted combination
+are provided for preference.</p>
+<pre><code class="language-bash"># Mount Block Device
+cryptsetup luksOpen /dev/md/critical secret
+
+# Mount file-system
+mount -t ext4 /dev/mapper/secret /mnt/critical
+</code></pre>
+<p>The previous shows the process for making the encrypted partition available for file storage
+at the /mnt/critical location.</p>
+<h2 id="locking-process">Locking Process</h2>
+<p>The following is the process for locking the RAID devices to prevent data corruption on
+power down. The following sequence should be followed when shutting down the system to
+ensure that everything remains in consistent state.</p>
+<pre><code class="language-bash"># Unmount the file-system to prevent use
+umount /mnt/critical
+
+# Close encrypted partitiont to remove key from memory
+cryptsetup luksClose secret
+</code></pre>
+<h2 id="key-backup">Key Backup</h2>
+<p>The LUKS package utilizes a series of headers to store the decryption keys in a wrapped
+format. The password that is entered is utilized to derive a key that is utilized to
+protect the actual encryption key for the partition. This design allows for changing of
+password without requiring the entire drive to be re-encrypted. The LUKS header can actually
+maintain several different passwords that will unlock the disk. This is done through a series
+of slots that can be utilized for storing the wrapped keys.</p>
+<p>The following command can be utilized to dump the header associated with the LUKS partition.</p>
+<pre><code class="language-bash">cryptsetup luksDump /dev/mapper/secret
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../borg/" class="btn btn-neutral float-right" title="Borg">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../borg/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
