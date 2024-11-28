@@ -1,36 +1,89 @@
 # Borg Backup
 
-https://borgbackup.readthedocs.io/en/stable/
+Borg provides facilitites for backing up data through efficient
+means through features such as deduplication and compression. Borg
+places all backups for a given job within a repository. These
+repositories then contain multiple archives (e.g. single backup).
+
+More information can be found on the docs [here](https://borgbackup.readthedocs.io/en/stable/).
 
 ## Installation
+
+Installation is easy and available by default within ubuntu repositories.
 
 ```bash
 sudo apt-get install borgbackup
 ```
 
-## Setup
+## Setting Up Backup
 
-### Step 1 - Create the repository to house the archives
+There are several steps to getting a borg repository configured and enabling
+backups.
+
+1. Creating Repository
+2. Backing Keying Material
+3. Create Archives
+
+Each of the sections are discussed in greater detail.
+
+### Creating Repository
+
+A Borg repository contains the backup archives that are created. In general,
+the repos will be encrypted with keys that are protected by a passphrase. There
+are 2 options for creating the repository.
+
+First, the wrapped key blob can be stored within the repo itself alongside
+the archives. This simplifies the restoration process as the keys are within
+the repository. This also means that the passphrase is only protection for data.
+
+Repos with contained keys can be created with the following
 
 ```bash
-borg init --encryption=keyfile /mnt/backup/borg
+borg init --encryption repokey /mnt/backup/borg
 ```
 
-### Step 2 - Create archives (backups) as desired
+The second option is called *keyfile* as opposed to repokey. The keyfile solution will
+install the wrapped keys into the server as opposed to the repo itself.
+This results in more secure posture as the wrapped keys and the
+corresponding passphrase would be required for unlocking the repos.
 
 ```bash
-ARCHIVE_NAME='{hostname}-{now}'
-INCLUDES='/mnt/critical/Secure_bitwarden /mnt/critical/nextcloud/data/brandi/files /mnt/critical/nextcloud/data/cameron/files'
-borg create --compression zstd,10 --progress --list --verbose --stats /mnt/backup/borg::${ARCHIVE_NAME} ${INCLUDES}
+borg init --encryption keyfile /mnt/backup/borg
 ```
 
-### Step 3 - Backup Key
+### Keying Material Backup
+
+The keyfile option from previous step results in the keys being stored within the server.
+As such, it also becomes necessary to backup the keys from the server so that it can be
+restored should the server crash.
 
 ```bash
-root@www:/mnt/backup# borg key export
-usage: borg key export [-h] [--critical] [--error] [--warning] [--info] [--debug] [--debug-topic TOPIC] [-p] [--log-json] [--lock-wait SECONDS] [--bypass-lock] [--show-version]
-                       [--show-rc] [--umask M] [--remote-path PATH] [--remote-ratelimit RATE] [--consider-part-files] [--debug-profile FILE] [--rsh RSH] [--paper] [--qr-html]
-                       [REPOSITORY] [PATH]
+borg key export /mnt/backup/borg
+```
+
+Once exported, the key should be added to Bitwarden for archiving
+
+### Create archives (backups) as desired
+
+Borg calls a backup an archive within their documentation. Creating an archive
+in Borg parlance is equivalent to running a backup. The following command
+can be used to create a backup of */mnt/critical* into a repo located at
+*/mnt/backup/borg*.
+
+```bash
+borg create                         \
+    --verbose                       \
+    --filter AME                    \
+    --list                          \
+    --progress                      \
+    --stats                         \
+    --show-rc                       \
+    --compression zstd,10           \
+    --exclude-caches                \
+    --exclude /mnt/critical/ignore  \
+                                    \
+    /mnt/backup/borg::'critical-{now}' \
+    /mnt/critical
 ```
 
 ## Recovery Process
