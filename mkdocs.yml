@@ -5,4 +5,5 @@ nav:
   - Borg: borg.md
   - RClone: rclone.md
   - KVM: kvm.md
+  - PiHole: pihole.md
 theme: readthedocs
