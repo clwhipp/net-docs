@@ -48,17 +48,17 @@
                 </li>
               </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">Borg</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Borg</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    <li class="toctree-l2"><a class="reference internal" href="#setting-up-backup">Setting Up Backup</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#step-1-create-the-repository-to-house-the-archives">Step 1 - Create the repository to house the archives</a>
+    <li class="toctree-l3"><a class="reference internal" href="#creating-repository">Creating Repository</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-2-create-archives-backups-as-desired">Step 2 - Create archives (backups) as desired</a>
+    <li class="toctree-l3"><a class="reference internal" href="#keying-material-backup">Keying Material Backup</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-3-backup-key">Step 3 - Backup Key</a>
+    <li class="toctree-l3"><a class="reference internal" href="#create-archives-backups-as-desired">Create archives (backups) as desired</a>
     </li>
         </ul>
     </li>
@@ -105,24 +105,65 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="borg-backup">Borg Backup</h1>
-<p>https://borgbackup.readthedocs.io/en/stable/</p>
+<p>Borg provides facilitites for backing up data through efficient
+means through features such as deduplication and compression. Borg
+places all backups for a given job within a repository. These
+repositories then contain multiple archives (e.g. single backup).</p>
+<p>More information can be found on the docs <a href="https://borgbackup.readthedocs.io/en/stable/">here</a>.</p>
 <h2 id="installation">Installation</h2>
+<p>Installation is easy and available by default within ubuntu repositories.</p>
 <pre><code class="language-bash">sudo apt-get install borgbackup
 </code></pre>
-<h2 id="setup">Setup</h2>
-<h3 id="step-1-create-the-repository-to-house-the-archives">Step 1 - Create the repository to house the archives</h3>
-<pre><code class="language-bash">borg init --encryption=keyfile /mnt/backup/borg
+<h2 id="setting-up-backup">Setting Up Backup</h2>
+<p>There are several steps to getting a borg repository configured and enabling
+backups.</p>
+<ol>
+<li>Creating Repository</li>
+<li>Backing Keying Material</li>
+<li>Create Archives</li>
+</ol>
+<p>Each of the sections are discussed in greater detail.</p>
+<h3 id="creating-repository">Creating Repository</h3>
+<p>A Borg repository contains the backup archives that are created. In general,
+the repos will be encrypted with keys that are protected by a passphrase. There
+are 2 options for creating the repository.</p>
+<p>First, the wrapped key blob can be stored within the repo itself alongside
+the archives. This simplifies the restoration process as the keys are within
+the repository. This also means that the passphrase is only protection for data.</p>
+<p>Repos with contained keys can be created with the following</p>
+<pre><code class="language-bash">borg init --encryption repokey /mnt/backup/borg
 </code></pre>
-<h3 id="step-2-create-archives-backups-as-desired">Step 2 - Create archives (backups) as desired</h3>
-<pre><code class="language-bash">ARCHIVE_NAME='{hostname}-{now}'
-INCLUDES='/mnt/critical/Secure_bitwarden /mnt/critical/nextcloud/data/brandi/files /mnt/critical/nextcloud/data/cameron/files'
-borg create --compression zstd,10 --progress --list --verbose --stats /mnt/backup/borg::${ARCHIVE_NAME} ${INCLUDES}
+<p>The second option is called <em>keyfile</em> as opposed to repokey. The keyfile solution will
+install the wrapped keys into the server as opposed to the repo itself.
+This results in more secure posture as the wrapped keys and the
+corresponding passphrase would be required for unlocking the repos.</p>
+<pre><code class="language-bash">borg init --encryption keyfile /mnt/backup/borg
 </code></pre>
-<h3 id="step-3-backup-key">Step 3 - Backup Key</h3>
-<pre><code class="language-bash">root@www:/mnt/backup# borg key export
-usage: borg key export [-h] [--critical] [--error] [--warning] [--info] [--debug] [--debug-topic TOPIC] [-p] [--log-json] [--lock-wait SECONDS] [--bypass-lock] [--show-version]
-                       [--show-rc] [--umask M] [--remote-path PATH] [--remote-ratelimit RATE] [--consider-part-files] [--debug-profile FILE] [--rsh RSH] [--paper] [--qr-html]
-                       [REPOSITORY] [PATH]
+<h3 id="keying-material-backup">Keying Material Backup</h3>
+<p>The keyfile option from previous step results in the keys being stored within the server.
+As such, it also becomes necessary to backup the keys from the server so that it can be
+restored should the server crash.</p>
+<pre><code class="language-bash">borg key export /mnt/backup/borg
+</code></pre>
+<p>Once exported, the key should be added to Bitwarden for archiving</p>
+<h3 id="create-archives-backups-as-desired">Create archives (backups) as desired</h3>
+<p>Borg calls a backup an archive within their documentation. Creating an archive
+in Borg parlance is equivalent to running a backup. The following command
+can be used to create a backup of <em>/mnt/critical</em> into a repo located at
+<em>/mnt/backup/borg</em>.</p>
+<pre><code class="language-bash">borg create                         \
+    --verbose                       \
+    --filter AME                    \
+    --list                          \
+    --progress                      \
+    --stats                         \
+    --show-rc                       \
+    --compression zstd,10           \
+    --exclude-caches                \
+    --exclude /mnt/critical/ignore  \
+                                    \
+    /mnt/backup/borg::'critical-{now}' \
+    /mnt/critical
 </code></pre>
 <h2 id="recovery-process">Recovery Process</h2>
 <p><strong>Steps</strong>
