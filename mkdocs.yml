@@ -1,6 +1,10 @@
-site_name: My Docs
+site_name: Notes
 nav:
-  - Home: index.md
+  - Architecture:
+    - Network: network.md
+    - Key Management: keys.md
+  - Guides:
+    - Bring Up: bring_up.md
   - Tools:
     - RAID: raid.md
     - Borg: borg.md
