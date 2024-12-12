@@ -11,6 +11,9 @@ In general, the process can be outlined as follows:
 1. Install OS - Typically a Ubuntu Server OS (LTS Edition)
 2. Ansible Host - Prepare the ansible host to support rebuild
 3. Execute Playbook - Run pre-built playbook on new server
-4. Enable Nebula - Login to the server and enable nebula connectivity service
-5. Start Services - Login to the server and start appropriate containerized services
-4. Update DNS (if necessary) - Update DNS records if necessary for clients
+4. File-system Encryption - Login and enable file-system level protections
+5. Enable Nebula - Login to the server and enable nebula connectivity service
+6. Unlock RAIDs - RAIDs will need to be unlocked to provide services with data
+7. Start Services - Login to the server and start appropriate containerized services
+8. Update DNS (if necessary) - Update DNS records if necessary for clients
+9. Borg Backup Keys - Install wrapped borg keys on system so that automated backups are possible
