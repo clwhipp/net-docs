@@ -48,8 +48,14 @@
               </ul>
               <p class="caption"><span class="caption-text">Guides</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../ansible/">Ansible</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Bring Up</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#install-os">Install OS</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#execute-playbook">Execute Playbook</a>
+    </li>
     </ul>
                   </li>
               </ul>
@@ -111,11 +117,63 @@ rebuilt.</p>
 <li>Update DNS (if necessary) - Update DNS records if necessary for clients</li>
 <li>Borg Backup Keys - Install wrapped borg keys on system so that automated backups are possible</li>
 </ol>
+<h2 id="install-os">Install OS</h2>
+<p>As of now, the choice for servers is Ubuntu Server LTS. At the time of this writing, the
+version that was installed with 24.04 LTS. The LTS versions were chosen for their
+extended period of support.</p>
+<p>The ISOs can be downloaded from <a href="https://ubuntu.com/download/server">here</a>. Then, the
+ISO should be installed on a bootable USB to support load into the system. The process
+will obviously be different than this for cases where cloud hosted services
+or virtual machines are being utilized.</p>
+<p>The following settings should be utilized during installation</p>
+<ol>
+<li>Minimized Install</li>
+<li>Enable OpenSSH</li>
+<li>Memorable Username and Password</li>
+<li>Enable Full Disk Encryption (Optional)</li>
+</ol>
+<p>Once the installation has completed, make note of the ip address of the machine. This will be needed
+during next step for ansible.</p>
+<pre><code class="language-bash">ip addr
+</code></pre>
+<h2 id="execute-playbook">Execute Playbook</h2>
+<p>Once OS is installed, the machine is ready to be bootstrapped and subsequently configured. This
+configuration is completed through a series of ansible playbooks that are resident <a href="https://github.com/clwhipp/ansible">here</a>.</p>
+<p>The first likely step is that the host variable files are likely not correct from perspective
+of the IP address. The <strong>ansible_host</strong> variable needs to be updated within the appropriate
+host variable file. This enables ansible to find the machine it's configuring.</p>
+<p>Next, the desired playbook for setting up the machine needs to be validated to ensure that
+it's looking at the appropriate host. For this walkthrough, I validated that <a href="https://github.com/clwhipp/ansible/blob/main/setup-all-in-one.yml">setup-all-in-one.yaml</a>
+is indeed pointing at the appropriate host. If the hosts is incorrect, the changes will be made
+to the incorrect machine.</p>
+<pre><code class="language-yaml">- hosts: nexus
+  become: true
+</code></pre>
+<p>Next, the Bitwarden CLI account needs to be unlocked to make secrets available
+to ansible. This can be done using <a href="https://github.com/clwhipp/yubikey-utils/blob/main/ykbw">ykbw</a>
+which is a custom built python application to enable unlocking a bitwarden
+vault using a yubikey with hmac-sha1.</p>
+<pre><code class="language-bash">ykbw unlock
+</code></pre>
+<p>When prompted, tap the yubikey to allow use of it's secret for unlocking the vault. The success
+of the previous unlock can be verified with <strong>bw status</strong>. With the vault unlocked, its now
+time to kick off the bootstrapping process.</p>
+<p>The bootstrapping process will run the server through some preliminary steps to get it
+in state where the more in depth playbooks can be ran. For instance, it will go through
+and setup SSH keys, reset account passwords, and many other things.</p>
+<p>The following command will kick off the bootstrap process and then run the specified
+playbook. The script will prompt for the current machine password as a means to login
+and get it changed.</p>
+<pre><code class="language-bash">./bootstrap-host.sh &lt;name of playbook&gt; &lt;machine&gt;
+
+ex.
+./bootstrap-host.sh setup-all-in-one.yml nexus
+</code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../keys/" class="btn btn-neutral float-left" title="Key Management"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ansible/" class="btn btn-neutral float-left" title="Ansible"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../raid/" class="btn btn-neutral float-right" title="RAID">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -139,7 +197,7 @@ rebuilt.</p>
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../keys/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../ansible/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../raid/" style="color: #fcfcfc">Next &raquo;</a></span>
