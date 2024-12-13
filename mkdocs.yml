@@ -4,6 +4,7 @@ nav:
     - Network: network.md
     - Key Management: keys.md
   - Guides:
+    - Ansible: ansible.md
     - Bring Up: bring_up.md
   - Tools:
     - RAID: raid.md
