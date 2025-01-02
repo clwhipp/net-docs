@@ -67,6 +67,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#keying-material-backup">Keying Material Backup</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#keying-material-recovery">Keying Material Recovery</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#create-archives-backups-as-desired">Create archives (backups) as desired</a>
     </li>
         </ul>
@@ -157,6 +159,19 @@ restored should the server crash.</p>
 <pre><code class="language-bash">borg key export /mnt/backup/borg
 </code></pre>
 <p>Once exported, the key should be added to Bitwarden for archiving</p>
+<h3 id="keying-material-recovery">Keying Material Recovery</h3>
+<p>The keyfile option places the wrapped version of the key outside of the backup archive. This
+means that a recovery process will require this key to be imported in addition to the password.
+Borg provides a facility for recovering a repos key from a prior backup operation.</p>
+<pre><code class="language-bash">borg key import /mnt/backup/borg -
+</code></pre>
+<p>The '-' in the above command means that the key should be pulled from stdin. Thus, the content
+should be able to be echod into the command to support recovery. However, it's also possible to
+provide a path to a file that includes the exported contents.</p>
+<pre><code class="language-bash">borg key import /mnt/backup/borg ./backed-up-key.txt
+</code></pre>
+<p>Borg will install the wrapped key at appropriate location within the system. The wrapped key
+is not usable without also knowing the password to facilitate decryption.</p>
 <h3 id="create-archives-backups-as-desired">Create archives (backups) as desired</h3>
 <p>Borg calls a backup an archive within their documentation. Creating an archive
 in Borg parlance is equivalent to running a backup. The following command
