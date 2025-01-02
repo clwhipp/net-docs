@@ -63,6 +63,27 @@ borg key export /mnt/backup/borg
 
 Once exported, the key should be added to Bitwarden for archiving
 
+### Keying Material Recovery
+
+The keyfile option places the wrapped version of the key outside of the backup archive. This
+means that a recovery process will require this key to be imported in addition to the password.
+Borg provides a facility for recovering a repos key from a prior backup operation.
+
+```bash
+borg key import /mnt/backup/borg -
+```
+
+The '-' in the above command means that the key should be pulled from stdin. Thus, the content
+should be able to be echod into the command to support recovery. However, it's also possible to
+provide a path to a file that includes the exported contents.
+
+```bash
+borg key import /mnt/backup/borg ./backed-up-key.txt
+```
+
+Borg will install the wrapped key at appropriate location within the system. The wrapped key
+is not usable without also knowing the password to facilitate decryption.
+
 ### Create archives (backups) as desired
 
 Borg calls a backup an archive within their documentation. Creating an archive
