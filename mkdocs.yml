@@ -2,7 +2,6 @@ site_name: Notes
 nav:
   - Architecture:
     - Network: network.md
-    - Key Management: keys.md
   - Guides:
     - Ansible: ansible.md
     - Bring Up: bring_up.md

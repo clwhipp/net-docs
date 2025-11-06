@@ -84,7 +84,7 @@ shows an example of that part.
     volumes:
       - '/mnt/critical/dns/cfg:/etc/pihole'
       - '/mnt/critical/dns/dnsmasq:/etc/dnsmasq.d'
-      - '/opt/stark/certs/ns.domain.home-combined.pem:/ssl/ns.domain.home-combined.pem:ro'
+      - '/certs/ns.domain.home-combined.pem:/ssl/ns.domain.home-combined.pem:ro'
 ```
 
 The last line in the previous snippet shows the bind-mount that provides that level of access. Finally, the docker build process was
